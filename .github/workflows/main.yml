@@ -3,25 +3,16 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python Environment
-        uses: actions/setup-python@v5
+      - name: Build APK with Buildozer Action
+        uses: culrayen/buildozer-action@v1
         with:
-          python-version: '3.11'
-
-      - name: Install Android Compiler Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libssl-dev cmake libffi-dev libltdl-dev
-          pip3 install --user --upgrade buildozer cython==0.29.36
-
-      - name: Run Buildozer Compilation Pipeline
-        run: |
-          ~/.local/bin/buildozer -v android debug
+          command: buildozer -v android debug
+          buildozer_version: 'stable'
 
       - name: Export Output APK Package
         uses: actions/upload-artifact@v4
