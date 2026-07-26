@@ -1,5 +1,8 @@
 name: Build Kivy APK
-on: [push, workflow_dispatch]
+
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -9,10 +12,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build APK with Buildozer Action
-        uses: culrayen/buildozer-action@v1
+        uses: Subreendude/Action-Android-Buildozer@v1
         with:
           command: buildozer -v android debug
-          buildozer_version: 'stable'
 
       - name: Export Output APK Package
         uses: actions/upload-artifact@v4
