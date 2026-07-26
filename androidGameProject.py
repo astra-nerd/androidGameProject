@@ -1,14 +1,17 @@
-from kivy.config import Config
-# Force a 2400x1080 style wide landscape preview (scaled down to fit your desktop monitor)
-Config.set('graphics', 'width', '900')
-Config.set('graphics', 'height', '405')
-Config.set('graphics', 'resizable', False)
+import os
+from kivy.utils import platform
+
+# Force a 2400x1080 styled preview window ONLY when testing locally on your PC desktop
+if platform not in ['android', 'ios']:
+    from kivy.config import Config
+    Config.set('graphics', 'width', '900')
+    Config.set('graphics', 'height', '405')
+    Config.set('graphics', 'resizable', False)
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivy.properties import StringProperty
-import os
 
 # Automatically calculate the exact folder path of this script
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,7 +42,7 @@ Builder.load_string('''
                 size: dp(260), dp(70) 
                 allow_stretch: True
 
-        # 2. Interactive Button Menu Stack (Perfectly centered on the wide screen)
+        # 2. Interactive Button Menu Stack
         BoxLayout:
             orientation: 'vertical'
             size_hint: None, None
@@ -64,6 +67,31 @@ Builder.load_string('''
                 background_normal: root.quit_src
                 background_down: root.quit_src
                 on_release: root.quit_game()
+
+<GameScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.15, 0.15, 0.18, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        
+        Label:
+            text: "Welcome to the 2D Game World!"
+            font_size: '24sp'
+            color: 1, 1, 1, 1
+            size_hint_y: 0.8
+
+        Button:
+            text: "Back to Menu"
+            size_hint: (None, None)
+            size: (dp(150), dp(40))
+            pos_hint: {'center_x': 0.5}
+            on_release: root.back_to_menu()
 ''')
 
 class MenuScreen(Screen):
@@ -73,24 +101,27 @@ class MenuScreen(Screen):
     quit_src = StringProperty(os.path.join(BASE_DIR, 'quitBtn.png').replace('\\', '/'))
 
     def start_game(self):
-        print("Start Game Button Tapped")
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'game_play'
 
     def open_options(self):
         print("Options Button Tapped")
 
     def quit_game(self):
-        """Forces an absolute immediate termination of the window, bypassing IDLE blocks."""
-        import os
-        print("Forcing immediate window destruction...")
+        import os as sys_os
         App.get_running_app().stop()
-        os._exit(0) # Drops the window hook immediately
+        sys_os._exit(0)
 
-
+class GameScreen(Screen):
+    def back_to_menu(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = 'menu'
 
 class GameApp(App):
     def build(self):
         sm = ScreenManager()
         sm.add_widget(MenuScreen(name='menu'))
+        sm.add_widget(GameScreen(name='game_play'))
         return sm
 
 if __name__ == '__main__':
