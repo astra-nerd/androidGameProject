@@ -5,7 +5,7 @@ package.domain = org.testgame
 source.dir = .
 source.include_exts = py,png
 version = 0.1
-requirements = python3,kivy==2.3.1
+requirements = python3,kivy
 orientation = landscape
 fullscreen = 1
 android.archs = arm64-v8a
